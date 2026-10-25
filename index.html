@@ -1,0 +1,507 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Jiyyad Bypass</title>
+<meta name="description" content="Jiyyad Bypass: buka link pendek SFL (Safelink) langsung ke tujuan aslinya. Tempel link, tekan tombol, selesai.">
+<meta name="theme-color" content="#07060f">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;900&family=Outfit:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  /* Layout: satu kolom tengah, panel alat di atas, lalu penjelasan dan langkah-langkah. */
+  :root {
+    --bg: #07060f;
+    --bg-2: #0d0b1c;
+    --panel: #100e22;
+    --line: #2a2552;
+    --fg: #ece9ff;
+    --muted: #9a94c7;
+    --pink: #ff2ea6;
+    --cyan: #19f0ff;
+    --lime: #b6ff3c;
+    --danger: #ff5c7a;
+    --font-display: "Unbounded", "Arial Black", system-ui, sans-serif;
+    --font-body: "Outfit", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-body);
+    font-size: 17px;
+    line-height: 1.65;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    padding-block: 0 48px;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  /* latar grid neon */
+  body::before {
+    content: "";
+    position: fixed; inset: 0;
+    background:
+      radial-gradient(60rem 30rem at 85% -10%, rgba(255,46,166,.22), transparent 60%),
+      radial-gradient(50rem 28rem at 5% 10%, rgba(25,240,255,.16), transparent 60%),
+      linear-gradient(rgba(120,110,220,.07) 1px, transparent 1px) 0 0 / 44px 44px,
+      linear-gradient(90deg, rgba(120,110,220,.07) 1px, transparent 1px) 0 0 / 44px 44px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrap { position: relative; z-index: 1; max-width: 880px; margin: 0 auto; }
+
+  a { color: var(--cyan); }
+  :focus-visible { outline: 2px solid var(--cyan); outline-offset: 3px; border-radius: 6px; }
+
+  /* navigasi */
+  nav {
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    padding-block: 22px;
+    flex-wrap: wrap;
+  }
+  .brand {
+    font-family: var(--font-display); font-weight: 700; font-size: 15px;
+    letter-spacing: .04em; text-decoration: none; color: var(--fg);
+    display: inline-flex; align-items: center; gap: 10px;
+  }
+  .brand i {
+    width: 12px; height: 12px; border-radius: 50%;
+    background: var(--lime); box-shadow: 0 0 12px var(--lime), 0 0 28px var(--lime);
+  }
+  nav .links { display: flex; gap: 20px; font-size: 15px; }
+  nav .links a { color: var(--muted); text-decoration: none; }
+  nav .links a:hover { color: var(--cyan); text-shadow: 0 0 10px var(--cyan); }
+
+  /* hero */
+  header.hero { padding-block: 40px 28px; }
+  .tag {
+    display: inline-block;
+    font-family: var(--font-mono); font-size: 12px; letter-spacing: .12em; text-transform: uppercase;
+    color: var(--lime);
+    border: 1px solid rgba(182,255,60,.45);
+    padding: 5px 12px; border-radius: 999px;
+    box-shadow: 0 0 14px rgba(182,255,60,.18) inset;
+    margin-bottom: 22px;
+  }
+  h1 {
+    font-family: var(--font-display); font-weight: 900;
+    font-size: clamp(2.3rem, 8.5vw, 4.6rem);
+    line-height: 1.02; letter-spacing: -.02em;
+    margin: 0 0 20px;
+    text-wrap: balance;
+  }
+  h1 .neon-a { color: var(--pink); text-shadow: 0 0 8px rgba(255,46,166,.9), 0 0 32px rgba(255,46,166,.55); }
+  h1 .neon-b { color: var(--cyan); text-shadow: 0 0 8px rgba(25,240,255,.9), 0 0 32px rgba(25,240,255,.5); }
+  .lead { max-width: 56ch; color: var(--muted); font-size: 1.1rem; margin: 0; }
+
+  /* panel alat */
+  .tool {
+    margin-top: 28px;
+    background: linear-gradient(180deg, rgba(25,240,255,.05), transparent 40%), var(--panel);
+    border: 1px solid var(--cyan);
+    border-radius: 18px;
+    padding: clamp(18px, 4vw, 30px);
+    box-shadow: 0 0 0 1px rgba(25,240,255,.15), 0 0 32px rgba(25,240,255,.22), 0 0 90px rgba(255,46,166,.12);
+  }
+  .tool label {
+    display: block; margin-bottom: 10px;
+    font-family: var(--font-mono); font-size: 12px; letter-spacing: .12em; text-transform: uppercase;
+    color: var(--cyan);
+  }
+  .field { display: flex; gap: 10px; flex-wrap: wrap; }
+  .field .input-wrap { flex: 1 1 260px; min-width: 0; position: relative; }
+  input[type="url"], input[type="text"] {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    color: var(--fg);
+    font-family: var(--font-mono); font-size: 15px;
+    padding: 15px 90px 15px 16px;
+    border-radius: 12px;
+    transition: border-color .2s, box-shadow .2s;
+  }
+  input::placeholder { color: #5e5a8a; }
+  input:focus { outline: none; border-color: var(--pink); box-shadow: 0 0 0 3px rgba(255,46,166,.25), 0 0 22px rgba(255,46,166,.35); }
+  .paste-btn {
+    position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+    background: transparent; color: var(--pink);
+    border: 1px solid rgba(255,46,166,.5);
+    font-family: var(--font-mono); font-size: 12px;
+    padding: 7px 12px; border-radius: 8px; cursor: pointer;
+  }
+  .paste-btn:hover { background: rgba(255,46,166,.14); box-shadow: 0 0 14px rgba(255,46,166,.4); }
+
+  .btn {
+    font-family: var(--font-display); font-weight: 700; font-size: 14px; letter-spacing: .05em;
+    color: #07060f; background: var(--lime);
+    border: 0; padding: 15px 28px; border-radius: 12px; cursor: pointer;
+    box-shadow: 0 0 20px rgba(182,255,60,.55), 0 0 60px rgba(182,255,60,.25);
+    transition: transform .15s, box-shadow .2s;
+    flex: 0 0 auto;
+  }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 0 26px rgba(182,255,60,.8), 0 0 80px rgba(182,255,60,.35); }
+  .btn:disabled { opacity: .6; cursor: progress; transform: none; }
+  .btn.ghost {
+    background: transparent; color: var(--cyan);
+    border: 1px solid var(--cyan);
+    box-shadow: 0 0 14px rgba(25,240,255,.25);
+    padding: 11px 18px; font-size: 12px;
+  }
+  .btn.ghost:hover { box-shadow: 0 0 22px rgba(25,240,255,.6); }
+
+  .hint { margin: 12px 0 0; font-size: 14px; color: var(--muted); }
+
+  /* hasil */
+  #result { margin-top: 22px; }
+  .card {
+    border: 1px solid var(--line); border-radius: 14px; padding: 18px;
+    background: var(--bg-2);
+  }
+  .card.ok { border-color: rgba(182,255,60,.6); box-shadow: 0 0 24px rgba(182,255,60,.16); }
+  .card.err { border-color: rgba(255,92,122,.65); box-shadow: 0 0 24px rgba(255,92,122,.16); }
+  .card h3 {
+    margin: 0 0 10px; font-family: var(--font-mono); font-size: 12px; letter-spacing: .12em; text-transform: uppercase;
+  }
+  .card.ok h3 { color: var(--lime); }
+  .card.err h3 { color: var(--danger); }
+  .out-url {
+    display: block; font-family: var(--font-mono); font-size: 15px;
+    word-break: break-all; overflow-wrap: anywhere;
+    color: var(--fg); margin: 0 0 14px;
+  }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; }
+  .row a.btn { text-decoration: none; display: inline-flex; align-items: center; }
+  pre.raw {
+    margin: 14px 0 0; padding: 14px; background: var(--bg); border: 1px solid var(--line);
+    border-radius: 10px; overflow-x: auto; font-family: var(--font-mono); font-size: 13px; color: var(--muted);
+    max-width: 100%;
+  }
+  .spinner {
+    display: inline-block; width: 14px; height: 14px; margin-right: 10px; vertical-align: -2px;
+    border: 2px solid var(--line); border-top-color: var(--cyan); border-radius: 50%;
+    animation: spin .8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* seksi */
+  section { padding-top: 64px; }
+  h2 {
+    font-family: var(--font-display); font-weight: 700;
+    font-size: clamp(1.4rem, 4.5vw, 2rem);
+    line-height: 1.15; letter-spacing: -.01em; margin: 0 0 14px; text-wrap: balance;
+  }
+  h2 span { color: var(--pink); text-shadow: 0 0 14px rgba(255,46,166,.7); }
+  p { margin: 0 0 14px; max-width: 64ch; }
+  .muted { color: var(--muted); }
+
+  .feats { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px; margin-top: 22px; }
+  .feat { border: 1px solid var(--line); border-radius: 14px; padding: 18px; background: rgba(16,14,34,.7); min-width: 0; }
+  .feat b { display: block; font-family: var(--font-display); font-weight: 500; font-size: 14px; margin-bottom: 6px; color: var(--cyan); }
+  .feat span { font-size: 15px; color: var(--muted); }
+
+  /* langkah */
+  ol.steps { list-style: none; counter-reset: s; padding: 0; margin: 22px 0 0; display: grid; gap: 14px; }
+  ol.steps li {
+    counter-increment: s; position: relative;
+    border: 1px solid var(--line); border-radius: 14px;
+    padding: 18px 18px 18px 72px; background: rgba(16,14,34,.7);
+    min-width: 0;
+  }
+  ol.steps li::before {
+    content: counter(s);
+    position: absolute; left: 18px; top: 16px;
+    width: 38px; height: 38px; border-radius: 10px;
+    display: grid; place-items: center;
+    font-family: var(--font-display); font-weight: 700; font-size: 16px;
+    color: var(--pink); border: 1px solid var(--pink);
+    box-shadow: 0 0 14px rgba(255,46,166,.45), inset 0 0 12px rgba(255,46,166,.2);
+  }
+  ol.steps li b { display: block; font-weight: 600; margin-bottom: 2px; }
+  ol.steps li span { color: var(--muted); font-size: 15.5px; }
+
+  /* kode */
+  .code {
+    position: relative; margin-top: 18px;
+    background: var(--bg-2); border: 1px solid var(--line); border-radius: 14px;
+  }
+  .code .bar {
+    display: flex; justify-content: space-between; align-items: center; gap: 10px;
+    padding: 10px 12px 10px 16px; border-bottom: 1px solid var(--line);
+    font-family: var(--font-mono); font-size: 12px; color: var(--muted);
+  }
+  .code pre {
+    margin: 0; padding: 16px; overflow-x: auto;
+    font-family: var(--font-mono); font-size: 13.5px; line-height: 1.7; color: var(--fg);
+  }
+  .code .k { color: var(--pink); }
+  .code .s { color: var(--lime); }
+  .code .c { color: var(--cyan); }
+
+  details { border: 1px solid var(--line); border-radius: 14px; padding: 4px 18px; background: rgba(16,14,34,.7); margin-bottom: 12px; }
+  summary { cursor: pointer; padding: 14px 0; font-weight: 500; list-style: none; display: flex; justify-content: space-between; gap: 12px; }
+  summary::-webkit-details-marker { display: none; }
+  summary::after { content: "+"; color: var(--cyan); font-family: var(--font-mono); font-size: 20px; line-height: 1; }
+  details[open] summary::after { content: "–"; }
+  details p { color: var(--muted); font-size: 16px; }
+
+  footer { margin-top: 72px; padding-top: 24px; border-top: 1px solid var(--line); color: var(--muted); font-size: 14px; display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+
+  .toast {
+    position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); transform: translate(-50%, 20px);
+    background: var(--lime); color: #07060f; font-family: var(--font-mono); font-size: 13px;
+    padding: 10px 18px; border-radius: 999px; opacity: 0; pointer-events: none;
+    box-shadow: 0 0 22px rgba(182,255,60,.6);
+    transition: opacity .2s, transform .2s; z-index: 20; max-width: calc(100% - 32px);
+  }
+  .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+  @media (max-width: 520px) {
+    body { font-size: 16px; }
+    .btn { width: 100%; }
+    ol.steps li { padding: 66px 16px 16px; }
+    ol.steps li::before { top: 16px; left: 16px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <nav>
+    <a class="brand" href="#"><i></i>JIYYAD BYPASS</a>
+    <div class="links">
+      <a href="#alat">Alat</a>
+      <a href="#tentang">Tentang</a>
+      <a href="#cara">Cara pakai</a>
+      <a href="#api">API</a>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <span class="tag">SFL / Safelink</span>
+    <h1><span class="neon-a">Jiyyad</span> <span class="neon-b">Bypass</span></h1>
+    <p class="lead">Tempel link sfl.gl, tekan satu tombol, dan dapatkan alamat tujuan aslinya tanpa menunggu timer atau klik halaman perantara.</p>
+
+    <div class="tool" id="alat">
+      <form id="form" novalidate>
+        <label for="url">Link SFL</label>
+        <div class="field">
+          <div class="input-wrap">
+            <input id="url" name="url" type="url" inputmode="url" autocomplete="off" spellcheck="false" placeholder="https://sfl.gl/xxxxxx" required>
+            <button type="button" class="paste-btn" id="pasteBtn">Tempel</button>
+          </div>
+          <button class="btn" id="goBtn" type="submit">BYPASS</button>
+        </div>
+        <p class="hint">Contoh: <code style="font-family:var(--font-mono);color:var(--cyan)">https://sfl.gl/xxxxxx</code></p>
+      </form>
+      <div id="result" aria-live="polite"></div>
+    </div>
+  </header>
+
+  <section id="tentang">
+    <h2>Apa itu <span>bypass</span> link?</h2>
+    <p>Link pendek seperti SFL (Safelink) sering mengantar kamu lewat halaman perantara: hitung mundur, iklan, lalu tombol lanjut. Bypass melewati langkah itu dan mengambil alamat tujuan akhirnya langsung.</p>
+    <p class="muted">Jiyyad Bypass mengirim link SFL kamu ke API, menerima alamat tujuan, lalu menampilkannya di sini. Kamu tinggal salin atau buka.</p>
+    <div class="feats">
+      <div class="feat"><b>Cepat</b><span>Satu permintaan, satu hasil. Tidak ada timer yang perlu ditunggu.</span></div>
+      <div class="feat"><b>Tanpa akun</b><span>Tidak perlu daftar atau login. Tempel link dan jalan.</span></div>
+      <div class="feat"><b>Ramah ponsel</b><span>Tampilan menyesuaikan layar, tombol tempel dan salin ada di tempatnya.</span></div>
+    </div>
+  </section>
+
+  <section id="cara">
+    <h2>Cara <span>salin &amp; tempel</span></h2>
+    <p class="muted">Empat langkah, kurang dari sepuluh detik.</p>
+    <ol class="steps">
+      <li><b>Salin link SFL</b><span>Tekan lama atau klik kanan pada link sfl.gl yang kamu punya, lalu pilih Salin link.</span></li>
+      <li><b>Tempel di kolom di atas</b><span>Klik kolom input dan tempel dengan Ctrl+V (di ponsel: tekan lama, pilih Tempel). Atau tekan tombol Tempel di dalam kolom.</span></li>
+      <li><b>Tekan BYPASS</b><span>Tunggu sebentar sampai hasil muncul di bawah kolom.</span></li>
+      <li><b>Salin atau buka hasilnya</b><span>Tekan Salin untuk menyalin alamat tujuan, atau Buka untuk langsung menuju ke sana.</span></li>
+    </ol>
+  </section>
+
+  <section id="api">
+    <h2>Pakai lewat <span>API</span></h2>
+    <p class="muted">Kamu juga bisa memanggil endpoint yang sama dari terminal.</p>
+    <div class="code">
+      <div class="bar"><span>cURL</span><button type="button" class="btn ghost" id="copyCurl">Salin</button></div>
+<pre id="curlText"><span class="k">curl</span> -X POST <span class="s">"<span id="origin">https://domainmu.com</span>/api/bypass"</span> \
+  -H <span class="s">"Content-Type: application/json"</span> \
+  -d <span class="s">'{"url":"https://sfl.gl/xxxxxx"}'</span></pre>
+    </div>
+  </section>
+
+  <section id="faq">
+    <h2>Pertanyaan <span>umum</span></h2>
+    <details>
+      <summary>Link jenis apa yang didukung?</summary>
+      <p>Endpoint ini dibuat untuk link Safelink (sfl.gl). Link dari layanan lain mungkin tidak berhasil.</p>
+    </details>
+    <details>
+      <summary>Hasilnya gagal atau kosong, kenapa?</summary>
+      <p>Cek dulu bahwa link lengkap dan masih aktif. Kalau tetap gagal, layanan API mungkin sedang sibuk. Coba lagi beberapa saat kemudian.</p>
+    </details>
+    <details>
+      <summary>Apakah link tujuan aman?</summary>
+      <p>Jiyyad Bypass hanya menampilkan alamat tujuan, tidak memeriksa isinya. Pastikan kamu mengenali dan memercayai situs tujuan sebelum membukanya.</p>
+    </details>
+  </section>
+
+  <footer>
+    <span>© <span id="yr"></span> Jiyyad Bypass</span>
+    <span>Dibuat dengan cahaya neon.</span>
+  </footer>
+</div>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(function () {
+  // Endpoint milik situs sendiri. API key disimpan di server, tidak pernah dikirim ke browser.
+  var API = "/api/bypass";
+  var form = document.getElementById("form");
+  var input = document.getElementById("url");
+  var goBtn = document.getElementById("goBtn");
+  var pasteBtn = document.getElementById("pasteBtn");
+  var result = document.getElementById("result");
+  var toastEl = document.getElementById("toast");
+  var toastTimer;
+
+  document.getElementById("yr").textContent = new Date().getFullYear();
+  if (location.protocol.indexOf("http") === 0) {
+    document.getElementById("origin").textContent = location.origin;
+  }
+
+  function toast(msg) {
+    toastEl.textContent = msg;
+    toastEl.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { toastEl.classList.remove("show"); }, 1800);
+  }
+
+  function copyText(text, okMsg) {
+    function fallback() {
+      var ta = document.createElement("textarea");
+      ta.value = text; ta.style.position = "fixed"; ta.style.opacity = "0";
+      document.body.appendChild(ta); ta.select();
+      var ok = false;
+      try { ok = document.execCommand("copy"); } catch (e) {}
+      document.body.removeChild(ta);
+      toast(ok ? okMsg : "Gagal menyalin, salin manual ya");
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () { toast(okMsg); }, fallback);
+    } else { fallback(); }
+  }
+
+  function esc(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+
+  function isHttp(s) { return typeof s === "string" && /^https?:\/\//i.test(s.trim()); }
+
+  // cari alamat tujuan di dalam JSON dengan bentuk apa pun
+  function findDestination(data, original) {
+    var preferred = ["result", "url", "link", "destination", "bypassed", "bypass", "target", "original", "data", "redirect"];
+    function walk(node, depth) {
+      if (depth > 5 || node == null) return null;
+      if (isHttp(node) && node.trim() !== original) return node.trim();
+      if (Array.isArray(node)) {
+        for (var i = 0; i < node.length; i++) { var r = walk(node[i], depth + 1); if (r) return r; }
+        return null;
+      }
+      if (typeof node === "object") {
+        for (var p = 0; p < preferred.length; p++) {
+          if (preferred[p] in node) { var f = walk(node[preferred[p]], depth + 1); if (f) return f; }
+        }
+        for (var k in node) { var g = walk(node[k], depth + 1); if (g) return g; }
+      }
+      return null;
+    }
+    return walk(data, 0);
+  }
+
+  function showLoading() {
+    result.innerHTML = '<div class="card"><h3>Memproses</h3><span class="spinner"></span>Mengambil alamat tujuan…</div>';
+  }
+
+  function showError(msg, raw) {
+    result.innerHTML =
+      '<div class="card err"><h3>Gagal</h3><p style="margin:0">' + esc(msg) + '</p>' +
+      (raw ? '<pre class="raw">' + esc(raw) + '</pre>' : '') + '</div>';
+  }
+
+  function showOk(dest, raw) {
+    result.innerHTML =
+      '<div class="card ok"><h3>Berhasil</h3>' +
+      '<span class="out-url" id="outUrl">' + esc(dest) + '</span>' +
+      '<div class="row">' +
+        '<button type="button" class="btn ghost" id="copyOut">Salin</button>' +
+        '<a class="btn ghost" href="' + esc(dest) + '" target="_blank" rel="noopener noreferrer nofollow">Buka</a>' +
+      '</div>' +
+      '<details style="margin:14px 0 0;padding:2px 14px"><summary style="padding:10px 0;font-size:14px">Respons mentah</summary>' +
+      '<pre class="raw" style="margin:0 0 12px">' + esc(raw) + '</pre></details></div>';
+    document.getElementById("copyOut").addEventListener("click", function () { copyText(dest, "Link tujuan disalin"); });
+  }
+
+  pasteBtn.addEventListener("click", function () {
+    if (navigator.clipboard && navigator.clipboard.readText) {
+      navigator.clipboard.readText().then(function (t) {
+        input.value = t.trim(); input.focus();
+      }, function () { toast("Izin tempel ditolak, tekan Ctrl+V di kolom"); input.focus(); });
+    } else { toast("Tekan Ctrl+V di kolom"); input.focus(); }
+  });
+
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    var value = input.value.trim();
+    if (!isHttp(value)) { showError("Masukkan link lengkap yang diawali https://, misalnya https://sfl.gl/xxxxxx"); input.focus(); return; }
+
+    goBtn.disabled = true; goBtn.textContent = "TUNGGU…";
+    showLoading();
+
+    fetch(API, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ url: value })
+    }).then(function (res) {
+      return res.text().then(function (text) { return { ok: res.ok, status: res.status, text: text }; });
+    }).then(function (r) {
+      var data = null;
+      try { data = JSON.parse(r.text); } catch (err) {}
+      var pretty = data ? JSON.stringify(data, null, 2) : r.text;
+      var dest = data ? findDestination(data, value) : (isHttp(r.text) ? r.text.trim() : null);
+      if (r.ok && dest) { showOk(dest, pretty); }
+      else if (!r.ok) {
+        var m = data && (data.message || data.error);
+        showError(m ? String(m) : "Server membalas dengan kode " + r.status + ".", pretty);
+      } else {
+        showError("Tidak ada alamat tujuan di respons. Pastikan link SFL masih aktif.", pretty);
+      }
+    }).catch(function () {
+      showError("Tidak bisa terhubung ke API. Periksa koneksi internet kamu, lalu coba lagi.");
+    }).then(function () {
+      goBtn.disabled = false; goBtn.textContent = "BYPASS";
+    });
+  });
+
+  document.getElementById("copyCurl").addEventListener("click", function () {
+    copyText(document.getElementById("curlText").innerText, "Perintah cURL disalin");
+  });
+})();
+</script>
+</body>
+</html>
